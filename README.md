@@ -2,7 +2,7 @@ UniWueMensa
 ===========
 
 UniWueMensa is a small Android Application that displays the
-latest cafeteria menu as a swipeable list.
+latest cafeteria menu from the University of Wuerzburg as a swipeable list.
 
 ## Features
 
