@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -108,6 +109,8 @@ public class MainActivity extends FragmentActivity {
 					fragments.get(i).updateLists(allMeals.get(i));
 				}
 			}
+			
+			this.notifyDataSetChanged();
 		}
 
 		public SectionsPagerAdapter(FragmentManager fm) {
@@ -140,6 +143,11 @@ public class MainActivity extends FragmentActivity {
 			DateFormat df = new SimpleDateFormat("EEEE, dd.MM", Locale.getDefault());
 			return df.format(HelperUtilities.getDateForIndex(position));
 
+		}
+		
+		@Override
+		public int getItemPosition(Object object){
+		     return POSITION_NONE;
 		}
 	}
 
@@ -205,9 +213,11 @@ public class MainActivity extends FragmentActivity {
 			}
 			SimpleAdapter arrayAdapter = new SimpleAdapter(getActivity(),
 					mylistData, R.layout.multicolumn, columnTags, columnIds);
-
+			
+			listView.setAdapter(null);
 			listView.setAdapter(arrayAdapter);
-			listView.invalidate();
+			
+			Log.d("logging", "i was here " + getArguments().getInt(ARG_SECTION_NUMBER));
 			
 			return listView;
 		}
