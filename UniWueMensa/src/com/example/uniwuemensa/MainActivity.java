@@ -3,11 +3,9 @@ package com.example.uniwuemensa;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,9 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -64,14 +60,6 @@ public class MainActivity extends FragmentActivity {
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 		mViewPager.setCurrentItem(HelperUtilities.getCurrentIndex());
-
-		MensaDbHelper helper = new MensaDbHelper(this);
-
-		MensaMeal ml = new MensaMeal(0, 0, 0, "bla", new Date());
-		ml.writeToDataBase(helper.getWritableDatabase());
-
-		// Load Data
-		// new MensaTask(isOnline()).execute();
 	}
 
 	private boolean isOnline() {
@@ -134,7 +122,7 @@ public class MainActivity extends FragmentActivity {
 				fragments.put(i, fragment);
 			}
 			
-			new MensaTask(isOnline(), this).execute();
+			new MensaTask(isOnline(), this, new MensaDbHelper(getApplicationContext())).execute();
 		}
 
 		@Override

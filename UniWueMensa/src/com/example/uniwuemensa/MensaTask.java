@@ -11,16 +11,19 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 
 public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 	//dont mess with the context, instead pass all relevant data to the Task
 	private final boolean isOnline;
 	private final MainActivity.SectionsPagerAdapter adapter;
+	private SQLiteOpenHelper helper;
 	
-	public MensaTask(boolean isOnline, MainActivity.SectionsPagerAdapter adapter) {
+	public MensaTask(boolean isOnline, MainActivity.SectionsPagerAdapter adapter, SQLiteOpenHelper helper) {
 		this.isOnline = isOnline;
 		this.adapter = adapter;
+		this.helper = helper;
 	}
 
 	@Override
@@ -56,6 +59,12 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 			Calendar cal = Calendar.getInstance();
 
 			cal.setTime(d);
+			
+			//set the rest to 0 -> important for reliable database access
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
 
 			//get last monday
 			cal.add(Calendar.DAY_OF_MONTH, -cal.get(Calendar.DAY_OF_WEEK) + 2);
@@ -113,9 +122,12 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 								.split(" ")[0].replace(",", ""));
 					} catch (NumberFormatException ex) {
 					}
+					
+					MensaMeal meal = new MensaMeal(studentPrice, staffPrice,
+							guestPrice, title, cal.getTime());
+					meal.writeToDatabase(helper.getWritableDatabase());
 
-					result.add(new MensaMeal(studentPrice, staffPrice,
-							guestPrice, title, cal.getTime()));
+					result.add(meal);
 				}
 
 				return result;
