@@ -7,6 +7,6 @@ latest cafeteria menu from the University of Wuerzburg as a swipeable list.
 ## Features
 
 * Intuitive UI using swipe views
-* Internal database for offline access (TODO)
+* Internal database for offline access
 * User preferences (TODO)
 * Designed and tested for Android 4 (Using Fragments and an ActionBar)
