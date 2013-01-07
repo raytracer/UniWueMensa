@@ -15,12 +15,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 
 public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
-	//dont mess with the context, instead pass all relevant data to the Task
+	// dont mess with the context, instead pass all relevant data to the Task
 	private final boolean isOnline;
 	private final MainActivity.SectionsPagerAdapter adapter;
 	private SQLiteOpenHelper helper;
-	
-	public MensaTask(boolean isOnline, MainActivity.SectionsPagerAdapter adapter, SQLiteOpenHelper helper) {
+
+	public MensaTask(boolean isOnline,
+			MainActivity.SectionsPagerAdapter adapter, SQLiteOpenHelper helper) {
 		this.isOnline = isOnline;
 		this.adapter = adapter;
 		this.helper = helper;
@@ -28,7 +29,7 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 
 	@Override
 	protected List<List<MensaMeal>> doInBackground(Void... params) {
-		if(isOnline) {
+		if (isOnline) {
 			return fetchDataOnline();
 		} else {
 			return fetchDataLocally();
@@ -36,20 +37,39 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 	}
 
 	private List<List<MensaMeal>> fetchDataLocally() {
-		// TODO fill with data from database
 		List<List<MensaMeal>> entries = new ArrayList<List<MensaMeal>>();
-		
-		for (int i = 0; i < 10; i++) {
-			entries.add(new ArrayList<MensaMeal>());
-		}
-		
-		return entries;
 
+		Date d = new Date();
+		Calendar cal = Calendar.getInstance();
+
+		cal.setTime(d);
+
+		// set the rest to 0 -> important for reliable database access
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		// get last monday
+		cal.add(Calendar.DAY_OF_MONTH, -cal.get(Calendar.DAY_OF_WEEK) + 2);
+
+		for (int i = 0; i < 10; i++) {
+			entries.add(MensaMeal.readFromDataBase(
+					helper.getReadableDatabase(), cal.getTime()));
+
+			if (i == 4) {
+				cal.add(Calendar.DAY_OF_MONTH, 3);
+			} else {
+				cal.add(Calendar.DAY_OF_MONTH, 1);
+			}
+		}
+
+		return entries;
 	}
 
 	private List<List<MensaMeal>> fetchDataOnline() {
 		List<List<MensaMeal>> entries = new ArrayList<List<MensaMeal>>();
-		
+
 		try {
 			final String url = "http://www.studentenwerk-wuerzburg.de/essen-trinken/speiseplaene/plan/show/mensa-am-hubland-wuerzburg.html";
 			Document doc = Jsoup.connect(url).get();
@@ -59,14 +79,14 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 			Calendar cal = Calendar.getInstance();
 
 			cal.setTime(d);
-			
-			//set the rest to 0 -> important for reliable database access
+
+			// set the rest to 0 -> important for reliable database access
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
 			cal.set(Calendar.MILLISECOND, 0);
 
-			//get last monday
+			// get last monday
 			cal.add(Calendar.DAY_OF_MONTH, -cal.get(Calendar.DAY_OF_WEEK) + 2);
 
 			for (int i = 0; i < 10; i++) {
@@ -82,7 +102,7 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 			return entries;
 		} catch (IOException e) {
 		}
-		
+
 		return entries;
 	}
 
@@ -90,7 +110,7 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 	protected void onPostExecute(List<List<MensaMeal>> result) {
 		adapter.updateLists(result);
 	}
-	
+
 	private List<MensaMeal> getMealsOnDay(Calendar cal, Elements days) {
 		List<MensaMeal> result = new ArrayList<MensaMeal>();
 
@@ -122,10 +142,9 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 								.split(" ")[0].replace(",", ""));
 					} catch (NumberFormatException ex) {
 					}
-					
+
 					MensaMeal meal = new MensaMeal(studentPrice, staffPrice,
 							guestPrice, title, cal.getTime());
-					meal.writeToDatabase(helper.getWritableDatabase());
 
 					result.add(meal);
 				}

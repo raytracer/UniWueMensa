@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MensaDbHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "MensaReader.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -19,7 +19,9 @@ public class MensaDbHelper extends SQLiteOpenHelper {
         MensaContract.MensaEntry.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
         MensaContract.MensaEntry.COLUMN_NAME_STUDENT_PRICE + INTEGER_TYPE + COMMA_SEP +
         MensaContract.MensaEntry.COLUMN_NAME_STAFF_PRICE + INTEGER_TYPE + COMMA_SEP +
-        MensaContract.MensaEntry.COLUMN_NAME_GUEST_PRICE + INTEGER_TYPE +
+        MensaContract.MensaEntry.COLUMN_NAME_GUEST_PRICE + INTEGER_TYPE + COMMA_SEP +
+        "UNIQUE(" + MensaContract.MensaEntry.COLUMN_NAME_DATE + COMMA_SEP +
+        MensaContract.MensaEntry.COLUMN_NAME_TITLE + ") ON CONFLICT REPLACE" +
         " )";
 
     private static final String SQL_DELETE_ENTRIES =

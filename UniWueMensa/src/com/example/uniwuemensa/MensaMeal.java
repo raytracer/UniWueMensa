@@ -1,10 +1,12 @@
 package com.example.uniwuemensa;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 /**
  * MensaMeal represents a single meal on a specific day.
@@ -37,11 +39,13 @@ public class MensaMeal {
 		// Insert the new row, returning the primary key value of the new row
 		long newRowId;
 		newRowId = db.insert(MensaContract.MensaEntry.TABLE_NAME, null, values);
-
+		
 		return newRowId != -1;
 	}
 
-	public static MensaMeal readFromDataBase(SQLiteDatabase db, Date day) {
+	public static ArrayList<MensaMeal> readFromDataBase(SQLiteDatabase db, Date day) {
+		ArrayList<MensaMeal> result = new ArrayList<MensaMeal>();
+		
 		Cursor cur = db.query(true, MensaContract.MensaEntry.TABLE_NAME,
 				new String[] { MensaContract.MensaEntry.COLUMN_NAME_TITLE,
 						MensaContract.MensaEntry.COLUMN_NAME_STUDENT_PRICE,
@@ -53,21 +57,23 @@ public class MensaMeal {
 			return null;
 		}
 
-		cur.moveToFirst();
+		for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+			String title = cur.getString(cur
+					.getColumnIndex(MensaContract.MensaEntry.COLUMN_NAME_TITLE));
+			int studentPrice = cur
+					.getInt(cur
+							.getColumnIndex(MensaContract.MensaEntry.COLUMN_NAME_STUDENT_PRICE));
+			int staffPrice = cur
+					.getInt(cur
+							.getColumnIndex(MensaContract.MensaEntry.COLUMN_NAME_STAFF_PRICE));
+			int guestPrice = cur
+					.getInt(cur
+							.getColumnIndex(MensaContract.MensaEntry.COLUMN_NAME_GUEST_PRICE));
+			
+			result.add(new MensaMeal(studentPrice, staffPrice, guestPrice, title, day));
+		}
 		
-		String title = cur.getString(cur
-				.getColumnIndex(MensaContract.MensaEntry.COLUMN_NAME_TITLE));
-		int studentPrice = cur
-				.getInt(cur
-						.getColumnIndex(MensaContract.MensaEntry.COLUMN_NAME_STUDENT_PRICE));
-		int staffPrice = cur
-				.getInt(cur
-						.getColumnIndex(MensaContract.MensaEntry.COLUMN_NAME_STAFF_PRICE));
-		int guestPrice = cur
-				.getInt(cur
-						.getColumnIndex(MensaContract.MensaEntry.COLUMN_NAME_GUEST_PRICE));
-		
-		return new MensaMeal(studentPrice, staffPrice, guestPrice, title, day);
+		return result;
 	}
 
 	public int getStudentPrice() {

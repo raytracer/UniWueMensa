@@ -217,8 +217,6 @@ public class MainActivity extends FragmentActivity {
 			listView.setAdapter(null);
 			listView.setAdapter(arrayAdapter);
 			
-			Log.d("logging", "i was here " + getArguments().getInt(ARG_SECTION_NUMBER));
-			
 			return listView;
 		}
 	}
