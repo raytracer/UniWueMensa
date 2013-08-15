@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -62,6 +63,13 @@ public class MainActivity extends FragmentActivity {
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 		mViewPager.setCurrentItem(HelperUtilities.getCurrentIndex());
 	}
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+
+    }
 
 	private boolean isOnline() {
 		ConnectivityManager cm = (ConnectivityManager) this
