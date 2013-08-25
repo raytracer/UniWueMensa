@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -69,6 +71,12 @@ public class MainActivity extends FragmentActivity {
         super.onConfigurationChanged(newConfig);
 
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mSectionsPagerAdapter.notifyDataSetChanged();
     }
 
 	private boolean isOnline() {
@@ -181,7 +189,7 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			
+
 			this.inflater = inflater;
 			this.container = container;
 			
@@ -215,7 +223,18 @@ public class MainActivity extends FragmentActivity {
 				HashMap<String, String> map = new HashMap<String, String>();
 
 				map.put("col1", meal.getTitle());
-				map.put("col2", HelperUtilities.centsToEuroString(meal.getStudentPrice()));
+
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String priceType = sharedPref.getString(SettingsActivity.KEY_PREF_PRICE_TYPE, MensaContract.MensaEntry.COLUMN_NAME_STUDENT_PRICE);
+
+                if (priceType.equals(MensaContract.MensaEntry.COLUMN_NAME_STUDENT_PRICE)) {
+                    map.put("col2", HelperUtilities.centsToEuroString(meal.getStudentPrice()));
+                } else if (priceType.equals(MensaContract.MensaEntry.COLUMN_NAME_STAFF_PRICE)) {
+                    map.put("col2", HelperUtilities.centsToEuroString(meal.getStaffPrice()));
+                } else if (priceType.equals(MensaContract.MensaEntry.COLUMN_NAME_GUEST_PRICE)) {
+                    map.put("col2", HelperUtilities.centsToEuroString(meal.getGuestPrice()));
+                }
+
 
 				mylistData.add(map);
 			}

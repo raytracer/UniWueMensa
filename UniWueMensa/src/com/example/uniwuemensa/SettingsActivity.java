@@ -1,11 +1,13 @@
 package com.example.uniwuemensa;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.support.v4.app.FragmentActivity;
 
-public class SettingsActivity extends Activity {
-	public static class SettingsFragment extends PreferenceFragment {
+public class SettingsActivity extends FragmentActivity {
+    public static final String KEY_PREF_PRICE_TYPE = "pref_priceType";
+
+    public static class SettingsFragment extends PreferenceFragment {
 	    @Override
 	    public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
