@@ -54,7 +54,7 @@ public class MensaMeal {
 				"date = " + day.getTime(), null, null, null, null, null);
 
 		if (cur.getCount() == 0) {
-			return null;
+			return result;
 		}
 
 		for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {

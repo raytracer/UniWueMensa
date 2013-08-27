@@ -146,6 +146,7 @@ public class MensaTask extends AsyncTask<Void, Void, List<List<MensaMeal>>> {
 					MensaMeal meal = new MensaMeal(studentPrice, staffPrice,
 							guestPrice, title, cal.getTime());
 
+                    meal.writeToDatabase(helper.getWritableDatabase());
 					result.add(meal);
 				}
 
