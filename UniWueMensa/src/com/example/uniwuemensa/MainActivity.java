@@ -1,19 +1,27 @@
 package com.example.uniwuemensa;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
+import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.IsoDep;
+import android.nfc.tech.MifareClassic;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -41,6 +49,10 @@ public class MainActivity extends FragmentActivity {
 	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
+    private NfcAdapter mAdapter;
+    private PendingIntent mPendingIntent;
+    private String[][] techLists;
+    private IntentFilter[] filters;
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -64,7 +76,91 @@ public class MainActivity extends FragmentActivity {
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 		mViewPager.setCurrentItem(HelperUtilities.getCurrentIndex());
+
+        //init NFC card
+        initCard();
 	}
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        try {
+            createTag(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void createTag(Intent intent)  {
+        if(intent.getAction().equals(NfcAdapter.ACTION_TECH_DISCOVERED)){
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+            IsoDep desfire = IsoDep.get(tag);
+
+            final byte[] READ_DATA_ARRAY_COMMAND  = new byte[]{(byte)0x6C, (byte) 0x01};
+            final byte[] NATIVE_SELECT_COMMAND = new byte[]{(byte)0x5A,(byte)0x5F,(byte)0x84,(byte)0x15};
+
+            try {
+
+                desfire.connect();
+
+                desfire.transceive(NATIVE_SELECT_COMMAND);
+
+                byte[] result = desfire.transceive(READ_DATA_ARRAY_COMMAND);
+
+                long value = 0;
+                for (int i = 1; i < result.length; i++)
+                {
+                    value += ((long) result[i] & 0xffL) << (8 * (i - 1));
+                }
+
+
+                desfire.close();
+
+                showThis(value/1000.0d + " €");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void showThis(String message){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Guthaben");
+        builder.setMessage(message);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        };
+        builder.setPositiveButton("Ok", listener);
+        builder.show();
+    }
+
+    private void initCard()
+    {
+        mAdapter = NfcAdapter.getDefaultAdapter(this);
+        mPendingIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                0);
+        IntentFilter detectedTag = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
+        filters = new IntentFilter[]{detectedTag};
+        techLists = new String[][]{new String[]{
+                MifareClassic.class.getName()
+        },new String[]{
+                IsoDep.class.getName()
+        }};
+        Log.i("techlist", String.valueOf(techLists.length));
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -77,6 +173,8 @@ public class MainActivity extends FragmentActivity {
     public void onResume() {
         super.onResume();
         mSectionsPagerAdapter.notifyDataSetChanged();
+        mAdapter.enableForegroundDispatch(this,
+                mPendingIntent, filters, techLists);
     }
 
 	private boolean isOnline() {
@@ -98,6 +196,12 @@ public class MainActivity extends FragmentActivity {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mAdapter.disableForegroundDispatch(this);
+    }
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
