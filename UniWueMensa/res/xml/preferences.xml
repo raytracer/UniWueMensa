@@ -1,0 +1,13 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory 
+        android:title="Einstellungen"
+        android:key="pref_key_storage_settings">
+        <ListPreference
+                android:key="pref_priceType"
+                android:title="Preistyp"
+                android:dialogTitle="Preistyp"
+                android:entries="@array/pref_priceType_entries"
+                android:entryValues="@array/pref_priceType_values"
+                android:defaultValue="student_price" />
+    </PreferenceCategory>
+</PreferenceScreen>
