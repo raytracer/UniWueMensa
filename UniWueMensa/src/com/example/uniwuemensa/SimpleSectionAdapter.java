@@ -36,10 +36,6 @@ package com.example.uniwuemensa;
  * @version 0.2
  */
 public class SimpleSectionAdapter<T> extends BaseAdapter {
-    // Debug
-    static final boolean DEBUG = false;
-    static final String TAG = SimpleSectionAdapter.class.getSimpleName();
-
     // Constants
     private static final int VIEW_TYPE_SECTION_HEADER = 0;
 
@@ -131,8 +127,7 @@ public class SimpleSectionAdapter<T> extends BaseAdapter {
 
     @Override
     public boolean areAllItemsEnabled() {
-        return mListAdapter.areAllItemsEnabled() ?
-                mSections.size() == 0 : false;
+        return mListAdapter.areAllItemsEnabled() && mSections.size() == 0;
     }
 
     @Override
@@ -150,8 +145,7 @@ public class SimpleSectionAdapter<T> extends BaseAdapter {
 
     @Override
     public boolean isEnabled(int position) {
-        return mSections.values().contains(position) ?
-                false : mListAdapter.isEnabled(getIndexForPosition(position));
+        return !mSections.values().contains(position) && mListAdapter.isEnabled(getIndexForPosition(position));
     }
 
     @Override

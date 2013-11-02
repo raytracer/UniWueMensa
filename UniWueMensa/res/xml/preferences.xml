@@ -1,7 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory 
-        android:title="Einstellungen"
-        android:key="pref_key_storage_settings">
+        android:title="Einstellungen">
         <ListPreference
                 android:key="pref_priceType"
                 android:title="Preistyp"
@@ -9,5 +8,16 @@
                 android:entries="@array/pref_priceType_entries"
                 android:entryValues="@array/pref_priceType_values"
                 android:defaultValue="student_price" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Mensen">
+        <CheckBoxPreference
+            android:key="pref_hubland"
+            android:title="@string/hubland"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="pref_frankenstube"
+            android:title="@string/frankenstube"
+            android:defaultValue="true" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.jsoup.Jsoup;
@@ -21,15 +22,20 @@ public class MensaTask extends AsyncTask<Void, Void, List<Pair<String, List<List
     private final MainActivity.SectionsPagerAdapter adapter;
     private SQLiteOpenHelper helper;
 
-    private final static String[] urls = {"http://www.studentenwerk-wuerzburg.de/essen-trinken/speiseplaene/plan/show/mensa-am-hubland-wuerzburg.html",
-            "http://www.studentenwerk-wuerzburg.de/essen-trinken/speiseplaene/plan/show/frankenstube-wuerzburg.html"};
-    private final static String[] names = {"Hubland Mensa", "Frankenstube"};
+    private ArrayList<String> urls = new ArrayList<String>();
+    private ArrayList<String> names = new ArrayList<String>();
 
     public MensaTask(boolean isOnline,
-                     MainActivity.SectionsPagerAdapter adapter, SQLiteOpenHelper helper) {
+                     MainActivity.SectionsPagerAdapter adapter, SQLiteOpenHelper helper, List<Pair<String, String>> mensaSettings) {
         this.isOnline = isOnline;
         this.adapter = adapter;
         this.helper = helper;
+
+
+        for (Pair<String, String> mensa : mensaSettings) {
+            names.add(mensa.first);
+            urls.add(mensa.second);
+        }
     }
 
     @Override
@@ -43,10 +49,6 @@ public class MensaTask extends AsyncTask<Void, Void, List<Pair<String, List<List
 
     private List<Pair<String, List<List<MensaMeal>>>> fetchDataLocally() {
         List<Pair<String, List<List<MensaMeal>>>> entries = new ArrayList<Pair<String, List<List<MensaMeal>>>>();
-
-        final String[] names = {"Hubland Mensa", "Frankenstube"};
-
-
 
         for (String name : names) {
             Date d = new Date();
@@ -87,8 +89,8 @@ public class MensaTask extends AsyncTask<Void, Void, List<Pair<String, List<List
     private List<Pair<String, List<List<MensaMeal>>>> fetchDataOnline() {
         List<Pair<String, List<List<MensaMeal>>>> result = new ArrayList<Pair<String, List<List<MensaMeal>>>>();
 
-        for (int i = 0; i < urls.length; i++) {
-            Pair<String, List<List<MensaMeal>>> pair = new Pair<String, List<List<MensaMeal>>>(names[i], getListsForUrl(urls[i], names[i]));
+        for (int i = 0; i < urls.size(); i++) {
+            Pair<String, List<List<MensaMeal>>> pair = new Pair<String, List<List<MensaMeal>>>(names.get(i), getListsForUrl(urls.get(i), names.get(i)));
             result.add(pair);
         }
 
@@ -99,8 +101,6 @@ public class MensaTask extends AsyncTask<Void, Void, List<Pair<String, List<List
         List<List<MensaMeal>> entries = new ArrayList<List<MensaMeal>>();
 
         try {
-
-
             Document doc = Jsoup.connect(url).get();
             Elements days = doc.select("div[data-day]");
 
@@ -129,7 +129,7 @@ public class MensaTask extends AsyncTask<Void, Void, List<Pair<String, List<List
             }
 
             return entries;
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
 
         return entries;
@@ -169,7 +169,7 @@ public class MensaTask extends AsyncTask<Void, Void, List<Pair<String, List<List
                                 .split(" ")[0].replace(",", ""));
                         guestPrice = Integer.parseInt(guestPriceString
                                 .split(" ")[0].replace(",", ""));
-                    } catch (NumberFormatException ex) {
+                    } catch (NumberFormatException ignored) {
                     }
 
                     MensaMeal meal = new MensaMeal(studentPrice, staffPrice,

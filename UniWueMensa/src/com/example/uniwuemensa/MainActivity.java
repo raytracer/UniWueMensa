@@ -30,7 +30,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -96,10 +95,22 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void createTag(Intent intent) {
+        if (intent == null || intent.getAction() == null) {
+            return;
+        }
+
         if (intent.getAction().equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
+            if (tag == null) {
+                return;
+            }
+
             IsoDep desfire = IsoDep.get(tag);
+
+            if (desfire == null) {
+                return;
+            }
 
             final byte[] READ_VALUE_COMMAND = new byte[]{(byte) 0x6C, (byte) 0x01};
             final byte[] NATIVE_SELECT_COMMAND = new byte[]{(byte) 0x5A, (byte) 0x5F, (byte) 0x84, (byte) 0x15};
@@ -120,7 +131,7 @@ public class MainActivity extends FragmentActivity {
 
                 desfire.close();
 
-                showThis(new DecimalFormat("#0.00 €").format(value / 1000.0d));
+                showMessageBox(new DecimalFormat("#0.00 €").format(value / 1000.0d), "Guthaben");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -131,10 +142,10 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
-    private void showThis(String message) {
+    private void showMessageBox(String message, String title) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Guthaben");
+        builder.setTitle(title);
         builder.setMessage(message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
 
@@ -159,14 +170,11 @@ public class MainActivity extends FragmentActivity {
         }, new String[]{
                 IsoDep.class.getName()
         }};
-        Log.i("techlist", String.valueOf(techLists.length));
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
-
     }
 
     @Override
@@ -182,12 +190,23 @@ public class MainActivity extends FragmentActivity {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo ni = cm.getActiveNetworkInfo();
-        if (ni == null) {
-            // There are no active networks.
-            return false;
+        return ni != null && ni.isConnected();
+    }
+
+    private List<Pair<String, String>> getMensaSettings() {
+        List<Pair<String, String>> result = new ArrayList<Pair<String, String>>();
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_HUBLAND, false)) {
+            result.add(new Pair<String, String> (getString(R.string.hubland),
+                    getString(R.string.hubland_url)));
+        }
+        if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_FRANKENSTUBE, false)) {
+            result.add(new Pair<String, String> (getString(R.string.frankenstube),
+                    getString(R.string.frankenstube_url)));
         }
 
-        return ni.isConnected();
+        return result;
     }
 
     @Override
@@ -226,9 +245,9 @@ public class MainActivity extends FragmentActivity {
         public void updateLists(List<Pair<String,List<List<MensaMeal>>>> allMeals) {
             List<List<Pair<String, List<MensaMeal>>>> mealsPerDay = new ArrayList<List<Pair<String, List<MensaMeal>>>>();
 
-            for (int i = 0; i < allMeals.size(); i++) {
-                String name = allMeals.get(i).first;
-                List<List<MensaMeal>> mealsPerMensaPerTwoWeek = allMeals.get(i).second;
+            for (Pair<String, List<List<MensaMeal>>> allMeal : allMeals) {
+                String name = allMeal.first;
+                List<List<MensaMeal>> mealsPerMensaPerTwoWeek = allMeal.second;
 
                 for (int j = 0; j < mealsPerMensaPerTwoWeek.size(); j++) {
                     if (j >= mealsPerDay.size()) {
@@ -260,7 +279,7 @@ public class MainActivity extends FragmentActivity {
                 fragments.put(i, fragment);
             }
 
-            new MensaTask(isOnline(), this, new MensaDbHelper(getApplicationContext())).execute();
+            new MensaTask(isOnline(), this, new MensaDbHelper(getApplicationContext()), getMensaSettings()).execute();
         }
 
         @Override
@@ -332,17 +351,17 @@ public class MainActivity extends FragmentActivity {
             ListView listView = (ListView) inflater.inflate(R.layout.menulist,
                     container, false);
 
+            if (listView == null) {
+                return null;
+            }
+
             ArrayList<HashMap<String, String>> mylistData = new ArrayList<HashMap<String, String>>();
 
             String[] columnTags = new String[]{"col1", "col2"};
 
             int[] columnIds = new int[]{R.id.titleColumn, R.id.priceColumn};
 
-            HashMap<HashMap<String, String>, String> mealToLocation = new HashMap<HashMap<String, String>, String>();
-
             for (Pair<String, List<MensaMeal>> mealsPerMensa : meals) {
-                HashMap<String, String> locMap = new HashMap<String, String>();
-
                 for (MensaMeal meal : mealsPerMensa.second) {
                     HashMap<String, String> map = new HashMap<String, String>();
 
@@ -376,9 +395,7 @@ public class MainActivity extends FragmentActivity {
                 }
             };
 
-            SimpleSectionAdapter simple = new SimpleSectionAdapter(getActivity(), arrayAdapter, R.layout.locationname, R.id.locationtext, mealSectionizer);
-
-            listView.setAdapter(null);
+            SimpleSectionAdapter<HashMap<String, String>> simple = new SimpleSectionAdapter<HashMap<String, String>>(getActivity(), arrayAdapter, R.layout.locationname, R.id.locationtext, mealSectionizer);
             listView.setAdapter(simple);
 
             return listView;

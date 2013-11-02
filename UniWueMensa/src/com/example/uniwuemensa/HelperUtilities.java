@@ -3,7 +3,7 @@ package com.example.uniwuemensa;
 import java.util.Calendar;
 import java.util.Date;
 
-public class HelperUtilities {
+class HelperUtilities {
     public static int getCurrentIndex() {
         Date d = new Date();
         Calendar cal = Calendar.getInstance();

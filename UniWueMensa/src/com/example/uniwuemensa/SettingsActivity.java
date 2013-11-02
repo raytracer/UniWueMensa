@@ -6,6 +6,9 @@ import android.support.v4.app.FragmentActivity;
 
 public class SettingsActivity extends FragmentActivity {
     public static final String KEY_PREF_PRICE_TYPE = "pref_priceType";
+    public static final String KEY_PREF_HUBLAND = "pref_hubland";
+    public static final String KEY_PREF_FRANKENSTUBE = "pref_frankenstube";
+
 
     public static class SettingsFragment extends PreferenceFragment {
         @Override

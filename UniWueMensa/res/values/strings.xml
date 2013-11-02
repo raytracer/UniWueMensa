@@ -2,10 +2,10 @@
 <resources>
 
     <string name="app_name">UniWueMensa</string>
-    <string name="title_section3">Section 3</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section1">Section 1</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="hubland">Hubland Mensa</string>
+    <string name="hubland_url">http://www.studentenwerk-wuerzburg.de/essen-trinken/speiseplaene/plan/show/mensa-am-hubland-wuerzburg.html</string>
+    <string name="frankenstube">Frankenstube</string>
+    <string name="frankenstube_url">http://www.studentenwerk-wuerzburg.de/essen-trinken/speiseplaene/plan/show/frankenstube-wuerzburg.html</string>
     <string name="menu_settings">Settings</string>
 
 </resources>
