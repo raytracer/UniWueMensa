@@ -1,8 +1,10 @@
-package com.example.uniwuemensa;
+package com.raytracer.uniwuemensa;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.FragmentActivity;
+
+import com.example.uniwuemensa.R;
 
 public class SettingsActivity extends FragmentActivity {
     public static final String KEY_PREF_PRICE_TYPE = "pref_priceType";

@@ -1,4 +1,4 @@
-package com.example.uniwuemensa;
+package com.raytracer.uniwuemensa;
 
 import android.provider.BaseColumns;
 

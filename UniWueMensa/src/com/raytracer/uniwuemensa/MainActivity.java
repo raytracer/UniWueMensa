@@ -1,4 +1,4 @@
-package com.example.uniwuemensa;
+package com.raytracer.uniwuemensa;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -38,6 +38,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+
+import com.example.uniwuemensa.R;
 
 public class MainActivity extends FragmentActivity {
 

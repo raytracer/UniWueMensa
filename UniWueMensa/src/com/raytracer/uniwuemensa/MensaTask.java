@@ -1,10 +1,9 @@
-package com.example.uniwuemensa;
+package com.raytracer.uniwuemensa;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import org.jsoup.Jsoup;

@@ -1,4 +1,4 @@
-package com.example.uniwuemensa;
+package com.raytracer.uniwuemensa;
 
 import java.util.ArrayList;
 import java.util.Date;

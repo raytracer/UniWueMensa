@@ -1,4 +1,4 @@
-package com.example.uniwuemensa;
+package com.raytracer.uniwuemensa;
 /*
  * Copyright (C) 2012 Mobs and Geeks
  *
