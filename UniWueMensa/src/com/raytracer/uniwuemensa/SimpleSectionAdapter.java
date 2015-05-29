@@ -92,6 +92,7 @@ public class SimpleSectionAdapter<T> extends BaseAdapter {
         return mListAdapter.getCount() + getSectionCount();
     }
 
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;

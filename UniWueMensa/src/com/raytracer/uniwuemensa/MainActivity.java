@@ -30,10 +30,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -75,10 +77,27 @@ public class MainActivity extends FragmentActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(
                 getSupportFragmentManager());
 
+        final SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(mSectionsPagerAdapter);
+
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setCurrentItem(HelperUtilities.getCurrentIndex());
+        mViewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                swipeLayout.setEnabled(false);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_UP:
+                        swipeLayout.setEnabled(true);
+                        break;
+                }
+                return false;
+            }
+        });
+
+
 
         initCard();
     }
@@ -161,6 +180,9 @@ public class MainActivity extends FragmentActivity {
 
     private void initCard() {
         mAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        if (mAdapter == null) return;
+
         mPendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 0);
@@ -182,6 +204,7 @@ public class MainActivity extends FragmentActivity {
     public void onResume() {
         super.onResume();
         mSectionsPagerAdapter.notifyDataSetChanged();
+        if (mAdapter == null) return;
         mAdapter.enableForegroundDispatch(this,
                 mPendingIntent, filters, techLists);
     }
@@ -220,6 +243,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (mAdapter == null) return;
         mAdapter.disableForegroundDispatch(this);
     }
 
@@ -240,10 +264,13 @@ public class MainActivity extends FragmentActivity {
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    public class SectionsPagerAdapter extends FragmentPagerAdapter implements  SwipeRefreshLayout.OnRefreshListener {
         private HashMap<Integer, MealListFragment> fragments = new HashMap<Integer, MainActivity.MealListFragment>();
 
         public void updateLists(List<Pair<String,List<List<MensaMeal>>>> allMeals) {
+            SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+            swipeLayout.setRefreshing(false);
+
             List<List<Pair<String, List<MensaMeal>>>> mealsPerDay = new ArrayList<List<Pair<String, List<MensaMeal>>>>();
 
             for (Pair<String, List<List<MensaMeal>>> allMeal : allMeals) {
@@ -284,6 +311,11 @@ public class MainActivity extends FragmentActivity {
         }
 
         @Override
+        public void onRefresh() {
+            new MensaTask(isOnline(), this, new MensaDbHelper(getApplicationContext()), getMensaSettings()).execute();
+        }
+
+        @Override
         public Fragment getItem(int position) {
             return fragments.get(position);
         }
@@ -312,9 +344,22 @@ public class MainActivity extends FragmentActivity {
         private LayoutInflater inflater = null;
         private ViewGroup container = null;
         private List<Pair<String, List<MensaMeal>>> meals = null;
+        private ListView listView = null;
 
 
         public MealListFragment() {
+        }
+
+        public boolean isFirstElementVisible() {
+            if (listView != null) {
+                View c = listView.getChildAt(0);
+                if (c != null) {
+                    int scrollY = -c.getTop() + listView.getFirstVisiblePosition() * c.getHeight();
+                    return scrollY == 0;
+                }
+            }
+
+            return true;
         }
 
         @Override
@@ -328,6 +373,7 @@ public class MainActivity extends FragmentActivity {
                 ListView listView = (ListView) inflater.inflate(R.layout.menulist,
                         container, false);
 
+                this.listView = listView;
                 return listView;
             } else {
                 return updateLists(meals);
@@ -391,6 +437,7 @@ public class MainActivity extends FragmentActivity {
             SimpleSectionAdapter<HashMap<String, String>> simple = new SimpleSectionAdapter<HashMap<String, String>>(getActivity(), arrayAdapter, R.layout.locationname, R.id.locationtext, mealSectionizer);
             listView.setAdapter(simple);
 
+            this.listView = listView;
             return listView;
         }
     }
