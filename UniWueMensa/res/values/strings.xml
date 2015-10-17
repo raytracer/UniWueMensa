@@ -6,6 +6,8 @@
     <string name="hubland_url">http://www.studentenwerk-wuerzburg.de/essen-trinken/speiseplaene/plan/show/mensa-am-hubland-wuerzburg.html</string>
     <string name="frankenstube">Frankenstube</string>
     <string name="frankenstube_url">http://www.studentenwerk-wuerzburg.de/essen-trinken/speiseplaene/plan/show/frankenstube-wuerzburg.html</string>
+    <string name="mensateria">Mensateria Campus Nord</string>
+    <string name="mensateria_url">https://www.studentenwerk-wuerzburg.de/essen-trinken/speiseplaene/plan/show/mensateria-campus-nord.html</string>
     <string name="menu_settings">Settings</string>
 
 </resources>

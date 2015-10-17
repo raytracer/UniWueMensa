@@ -229,6 +229,10 @@ public class MainActivity extends FragmentActivity {
             result.add(new Pair<String, String> (getString(R.string.frankenstube),
                     getString(R.string.frankenstube_url)));
         }
+        if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_MENSATERIA, false)) {
+            result.add(new Pair<String, String> (getString(R.string.mensateria),
+                    getString(R.string.mensateria_url)));
+        }
 
         return result;
     }

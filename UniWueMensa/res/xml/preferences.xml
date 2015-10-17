@@ -19,5 +19,9 @@
             android:key="pref_frankenstube"
             android:title="@string/frankenstube"
             android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="pref_mensateria"
+            android:title="@string/mensateria"
+            android:defaultValue="true" />
     </PreferenceCategory>
 </PreferenceScreen>
