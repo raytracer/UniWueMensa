@@ -207,6 +207,8 @@ public class MainActivity extends FragmentActivity {
         if (mAdapter == null) return;
         mAdapter.enableForegroundDispatch(this,
                 mPendingIntent, filters, techLists);
+
+        createTag(getIntent());
     }
 
     private boolean isOnline() {
