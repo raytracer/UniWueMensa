@@ -9,7 +9,7 @@ latest cafeteria menu from the University of Wuerzburg as a swipeable list.
 * Intuitive UI using swipe views
 * Internal database for offline access
 * User preferences
-* Reading and Displaying the amount of money left on the mensa card (student id) using the inbuilt
+* Reading and Displaying the amount of money left on the mensa card (student id) using the inbuilt NFC reader
 * Autostart on NFC intent. (starts when holding the student id near to it)
 * Designed and tested for Android 4 (Using Fragments and an ActionBar)
 
